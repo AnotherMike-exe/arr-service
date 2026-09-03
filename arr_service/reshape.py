@@ -19,8 +19,15 @@ from .apply import Action
 
 # Never allowed: unrankable junk, disc images, and untranscoded raw captures.
 JUNK_QUALITIES = {
-    "unknown", "workprint", "cam", "telesync", "telecine",
-    "dvdscr", "regional", "br-disk", "raw-hd",
+    "unknown",
+    "workprint",
+    "cam",
+    "telesync",
+    "telecine",
+    "dvdscr",
+    "regional",
+    "br-disk",
+    "raw-hd",
 }
 
 
@@ -65,8 +72,7 @@ def build_items(client, allow_names):
     ]
 
 
-def set_shape(client, profile_id, allow=None, cutoff=None, name=None,
-              upgrade_allowed=None, execute=False):
+def set_shape(client, profile_id, allow=None, cutoff=None, name=None, upgrade_allowed=None, execute=False):
     """Replace a profile's allowed qualities, cutoff, name and upgrade flag."""
     profile = client.get(f"qualityprofile/{profile_id}")
     if not profile:
@@ -87,9 +93,7 @@ def set_shape(client, profile_id, allow=None, cutoff=None, name=None,
         items = build_items(client, allow)
         allowed_now = [i["quality"]["name"] for i in items if i["allowed"]]
         before = [
-            i["quality"]["name"]
-            for i in profile.get("items", [])
-            if i.get("quality") and i.get("allowed")
+            i["quality"]["name"] for i in profile.get("items", []) if i.get("quality") and i.get("allowed")
         ]
         updated["items"] = items
         if allowed_now != before:
@@ -102,9 +106,7 @@ def set_shape(client, profile_id, allow=None, cutoff=None, name=None,
             if i.get("allowed") and i["quality"]["name"].lower() == cutoff.strip().lower()
         ]
         if not candidates:
-            allowed_now = [
-                i["quality"]["name"] for i in updated.get("items", []) if i.get("allowed")
-            ]
+            allowed_now = [i["quality"]["name"] for i in updated.get("items", []) if i.get("allowed")]
             raise ValueError(
                 f"{client.name}: cutoff {cutoff!r} is not among the allowed qualities "
                 f"({', '.join(allowed_now)})"
@@ -146,10 +148,7 @@ def series_resolution(client, series_id):
         files = client.get(f"episodefile?seriesId={series_id}") or []
     except Exception:
         return None
-    resolutions = [
-        ((f.get("quality") or {}).get("quality") or {}).get("resolution")
-        for f in files
-    ]
+    resolutions = [((f.get("quality") or {}).get("quality") or {}).get("resolution") for f in files]
     resolutions = [r for r in resolutions if r is not None]
     return max(resolutions) if resolutions else None
 

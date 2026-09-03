@@ -27,8 +27,15 @@ def _profile(client, profile_id):
     return profile
 
 
-def stop_upgrades_at_cutoff(client, profile_id, cutoff_quality=None, cutoff_format_score=None,
-                            min_format_score=None, disable_upgrades=False, execute=False):
+def stop_upgrades_at_cutoff(
+    client,
+    profile_id,
+    cutoff_quality=None,
+    cutoff_format_score=None,
+    min_format_score=None,
+    disable_upgrades=False,
+    execute=False,
+):
     """Make a profile stop grabbing once its cutoff is reached.
 
     cutoff_quality        move the quality cutoff to this named quality
@@ -67,8 +74,7 @@ def stop_upgrades_at_cutoff(client, profile_id, cutoff_quality=None, cutoff_form
     updated.update(changes)
     summary = ", ".join(f"{key}={value}" for key, value in changes.items())
     action = Action(
-        f"{client.name}: update profile {profile['id']} {profile['name']!r} → {summary}"
-        f"{resolved_note}",
+        f"{client.name}: update profile {profile['id']} {profile['name']!r} → {summary}{resolved_note}",
         "PUT",
         f"qualityprofile/{profile['id']}",
         updated,
@@ -211,8 +217,7 @@ def restore_profiles(client, state, execute=False):
     return actions
 
 
-def set_media_management(client, propers=None, recycle_bin=None,
-                         recycle_cleanup_days=None, execute=False):
+def set_media_management(client, propers=None, recycle_bin=None, recycle_cleanup_days=None, execute=False):
     """Adjust instance-wide media management settings.
 
     `propers` matters more than it looks: "preferAndUpgrade" replaces a file when a
@@ -229,11 +234,7 @@ def set_media_management(client, propers=None, recycle_bin=None,
         "recycleBin": recycle_bin,
         "recycleBinCleanupDays": recycle_cleanup_days,
     }
-    changes = {
-        key: value
-        for key, value in wanted.items()
-        if value is not None and current.get(key) != value
-    }
+    changes = {key: value for key, value in wanted.items() if value is not None and current.get(key) != value}
     if not changes:
         return [Action(f"{client.name}: media management already matches — nothing to do")]
 

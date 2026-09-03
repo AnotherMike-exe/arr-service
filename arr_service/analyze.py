@@ -78,9 +78,7 @@ def cutoff_choices(profile):
         if item.get("quality"):
             names.append(item["quality"]["name"])
         else:
-            members = ", ".join(
-                s["quality"]["name"] for s in item.get("items", []) if s.get("quality")
-            )
+            members = ", ".join(s["quality"]["name"] for s in item.get("items", []) if s.get("quality"))
             names.append(f"{item.get('name')} [{members}]")
     return names
 
@@ -88,9 +86,7 @@ def cutoff_choices(profile):
 def format_scores(profile):
     """Non-zero custom format scores, keyed by format name."""
     return {
-        item.get("name"): item.get("score")
-        for item in profile.get("formatItems", [])
-        if item.get("score")
+        item.get("name"): item.get("score") for item in profile.get("formatItems", []) if item.get("score")
     }
 
 
@@ -123,9 +119,7 @@ def signature(profile):
 
 def shape_signature(profile):
     """Weaker identity: same allowed qualities and cutoff, formats ignored."""
-    return json.dumps(
-        {"qualities": quality_names(profile), "cutoff": cutoff_name(profile)}, sort_keys=True
-    )
+    return json.dumps({"qualities": quality_names(profile), "cutoff": cutoff_name(profile)}, sort_keys=True)
 
 
 def usage(state):
@@ -203,9 +197,7 @@ def upgrade_findings(profile, refs, observed=None):
         if gradient:
             top = ", ".join(
                 f"{name} {score}"
-                for name, score in sorted(
-                    format_scores(profile).items(), key=lambda kv: -kv[1]
-                )[:3]
+                for name, score in sorted(format_scores(profile).items(), key=lambda kv: -kv[1])[:3]
                 if score > 0
             )
             findings.append(
@@ -237,9 +229,7 @@ def upgrade_findings(profile, refs, observed=None):
 
     unmet = refs["cutoffUnmet"].get(profile["id"], 0)
     if unmet:
-        findings.append(
-            ("info", f"{unmet} item(s) on this profile are currently flagged as cutoff-unmet.")
-        )
+        findings.append(("info", f"{unmet} item(s) on this profile are currently flagged as cutoff-unmet."))
     return findings
 
 

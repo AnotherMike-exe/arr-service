@@ -66,8 +66,6 @@ def discover(env=None):
             problems.append(f"{name}: URL must start with http:// or https:// (got {url!r})")
             continue
 
-        instances.append(
-            {"name": name.lower(), "app": app, "url": url.rstrip("/"), "api_key": api_key}
-        )
+        instances.append({"name": name.lower(), "app": app, "url": url.rstrip("/"), "api_key": api_key})
 
     return instances, problems

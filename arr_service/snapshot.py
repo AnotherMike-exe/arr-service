@@ -37,8 +37,7 @@ def file_scores(client, media, profiles):
         wanted = [
             s
             for s in media
-            if s.get("qualityProfileId") in relevant
-            and (s.get("statistics") or {}).get("episodeFileCount")
+            if s.get("qualityProfileId") in relevant and (s.get("statistics") or {}).get("episodeFileCount")
         ]
         for series in wanted:
             try:

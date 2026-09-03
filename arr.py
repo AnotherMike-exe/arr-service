@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """Sonarr/Radarr profile cleanup CLI.
 
-    ./arr.py check                 verify connectivity to every configured instance
-    ./arr.py pull                  snapshot full state to snapshots/<stamp>/
-    ./arr.py report                pull, then print findings (read-only)
-    ./arr.py report --from DIR     re-run the report against an existing snapshot
-    ./arr.py set-cutoff ...        stop upgrades at a cutoff (dry-run by default)
-    ./arr.py merge ...             fold one profile into another (dry-run by default)
-    ./arr.py reshape ...           replace a profile's allowed qualities and cutoff
-    ./arr.py sort ...              route media by the resolution already on disk
-    ./arr.py restore DIR           push snapshotted profiles back
+./arr.py check                 verify connectivity to every configured instance
+./arr.py pull                  snapshot full state to snapshots/<stamp>/
+./arr.py report                pull, then print findings (read-only)
+./arr.py report --from DIR     re-run the report against an existing snapshot
+./arr.py set-cutoff ...        stop upgrades at a cutoff (dry-run by default)
+./arr.py merge ...             fold one profile into another (dry-run by default)
+./arr.py reshape ...           replace a profile's allowed qualities and cutoff
+./arr.py sort ...              route media by the resolution already on disk
+./arr.py restore DIR           push snapshotted profiles back
 """
 
 import argparse
@@ -43,7 +43,7 @@ def cmd_check(args):
     for client in build_clients(args.instance):
         try:
             status = client.get("system/status") or {}
-            print(f"  ok  {client.name:12} {client.app:7} v{status.get('version','?'):12} {client.base}")
+            print(f"  ok  {client.name:12} {client.app:7} v{status.get('version', '?'):12} {client.base}")
         except client_mod.ArrError as exc:
             failed = True
             print(f"  FAIL {client.name:12} {exc}")
@@ -71,9 +71,10 @@ def fmt_score(row):
     if row["observedFiles"]:
         text += f", best of {row['observedFiles']} file(s) on disk {row['observedMaxScore']}"
     text += ")"
-    never = row["upgradeAllowed"] and cutoff > 0 and (
-        cutoff > reach
-        or (row["observedMaxScore"] is not None and row["observedMaxScore"] < cutoff)
+    never = (
+        row["upgradeAllowed"]
+        and cutoff > 0
+        and (cutoff > reach or (row["observedMaxScore"] is not None and row["observedMaxScore"] < cutoff))
     )
     return text + ("  <-- never satisfied" if never else "")
 
@@ -177,7 +178,10 @@ def cmd_merge(args):
     actions = []
     for client in clients:
         actions += apply.merge_profiles(
-            client, args.source, args.target, delete_source=not args.keep_source,
+            client,
+            args.source,
+            args.target,
+            delete_source=not args.keep_source,
             execute=args.execute,
         )
     return run_actions(actions, args.execute)
@@ -193,9 +197,12 @@ def cmd_reshape(args):
     actions = []
     for client in clients:
         actions += reshape.set_shape(
-            client, args.profile,
+            client,
+            args.profile,
             allow=[q.strip() for q in args.allow.split(",")] if args.allow else None,
-            cutoff=args.cutoff, name=args.name, upgrade_allowed=upgrades,
+            cutoff=args.cutoff,
+            name=args.name,
+            upgrade_allowed=upgrades,
             execute=args.execute,
         )
     return run_actions(actions, args.execute)
@@ -214,9 +221,7 @@ def cmd_sort(args):
         sources[int(pid)] = tier
     actions = []
     for client in clients:
-        acts, reasons = reshape.sort_by_resolution(
-            client, args.uhd, args.hd, sources, execute=args.execute
-        )
+        acts, reasons = reshape.sort_by_resolution(client, args.uhd, args.hd, sources, execute=args.execute)
         actions += acts
         print("  classified by:")
         for reason, count in reasons.most_common():
@@ -231,8 +236,11 @@ def cmd_config(args):
     actions = []
     for client in clients:
         actions += apply.set_media_management(
-            client, propers=args.propers, recycle_bin=args.recycle_bin,
-            recycle_cleanup_days=args.recycle_cleanup_days, execute=args.execute,
+            client,
+            propers=args.propers,
+            recycle_bin=args.recycle_bin,
+            recycle_cleanup_days=args.recycle_cleanup_days,
+            execute=args.execute,
         )
     return run_actions(actions, args.execute)
 
@@ -298,9 +306,12 @@ def main():
     sort.add_argument("instance")
     sort.add_argument("--uhd", type=int, required=True, help="profile id for 2160p content")
     sort.add_argument("--hd", type=int, required=True, help="profile id for everything below")
-    sort.add_argument("--source", action="append", required=True,
-                      help="<profileId>:uhd|hd — a profile to sort, and the tier its "
-                           "file-less items follow (repeatable)")
+    sort.add_argument(
+        "--source",
+        action="append",
+        required=True,
+        help="<profileId>:uhd|hd — a profile to sort, and the tier its file-less items follow (repeatable)",
+    )
     sort.add_argument("--execute", action="store_true")
     sort.set_defaults(func=cmd_sort)
 
