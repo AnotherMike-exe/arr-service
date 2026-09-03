@@ -1,0 +1,69 @@
+name: Review
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Install ruff
+        run: pipx install ruff
+      - name: Lint
+        run: ruff check .
+      # `ruff format` is deliberately not enforced: the existing style is
+      # consistent and reformatting would churn working code for no gain.
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Import check
+        # Stands in for a unit suite until tests/ exists. The package is
+        # stdlib-only, so a clean import is a real smoke test of every module.
+        run: python -c "import arr; from arr_service import analyze, apply, client, config, reshape, snapshot"
+      - name: Unit tests
+        # TODO: no tests/ suite yet — see the TODO section in README.md.
+        # Integration tests need a live Sonarr/Radarr instance and cannot run headless here.
+        run: |
+          if [ -d tests ]; then
+            pipx install pytest && pytest tests
+          else
+            echo "no tests/ directory yet — skipping"
+          fi
+
+  claude-review:
+    name: Claude review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      # Job-level so the step `if` below can read it. Empty on forks and until
+      # ANTHROPIC_API_KEY is added to repo secrets, which skips the review.
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Claude Code review
+        if: env.ANTHROPIC_API_KEY != ''
+        uses: anthropics/claude-code-action@v1.0.214
+        with:
+          anthropic_api_key: ${{ env.ANTHROPIC_API_KEY }}
+          prompt: /review

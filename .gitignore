@@ -1,0 +1,46 @@
+# Secrets — instance URLs and API keys
+.env
+.env.local
+.env.*.local
+
+# Pulled state and generated reports
+snapshots/
+reports/
+
+# Development resources (NOT in version control)
+_resources/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Test coverage
+.pytest_cache/
+coverage/
+htmlcov/
+.ruff_cache/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
