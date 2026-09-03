@@ -21,8 +21,8 @@ jobs:
         run: pipx install ruff
       - name: Lint
         run: ruff check .
-      # `ruff format` is deliberately not enforced: the existing style is
-      # consistent and reformatting would churn working code for no gain.
+      - name: Format
+        run: ruff format --check .
 
   test:
     name: Test

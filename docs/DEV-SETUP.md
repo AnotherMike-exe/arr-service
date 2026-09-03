@@ -34,10 +34,11 @@ git config pull.rebase true    # linear history, the house standard
 
 ```bash
 ruff check .
+ruff format .          # use --check to match CI without writing
 ```
 
-CI runs the same command. `ruff format` is not enforced, because the existing style
-is consistent and a reformat would churn working code for no gain.
+CI runs both. Format the tree before you open a pull request, or the `lint` job fails.
+Line length is 110, set in `pyproject.toml`.
 
 ## Tests
 

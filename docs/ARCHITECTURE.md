@@ -96,7 +96,7 @@ not a container or a package on an index.
 
 | Job | Trigger | What it does |
 |---|---|---|
-| `lint` | PR, push to main | `ruff check .` against the config in `pyproject.toml` |
+| `lint` | PR, push to main | `ruff check .` and `ruff format --check .`, both against `pyproject.toml` |
 | `test` | PR, push to main | imports every module on Python 3.9, then runs `tests/` if it exists |
 | `claude-review` | PR only | automated code review through `anthropics/claude-code-action` |
 
@@ -108,5 +108,13 @@ nothing to mock.
 into a job-level `env`, and the step is skipped when that value is empty. A fork, or a
 repository where the secret is not yet set, therefore passes rather than fails.
 
-`ruff format` is not enforced. The existing style is consistent, and a reformat would
-rewrite working code for no benefit.
+`ruff format` is enforced. The whole tree was formatted in one commit, separate from any
+behaviour change, so the reformat is easy to skip when reading history. Two of its edits
+are worth knowing about:
+
+- The module docstring in `arr.py` lost its indentation. That docstring is the `--help`
+  text, through `RawDescriptionHelpFormatter`. Python 3.13 and newer dedent an argparse
+  description anyway, so the printed output does not change. The source now matches what
+  a user sees.
+- Line length is 110, not the ruff default of 88. The code holds wide f-string report rows
+  that read worse when split.
